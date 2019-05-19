@@ -2,7 +2,7 @@ CC	= gcc
 CFLAGS	=
 LFLAGS	= -lpthread
 
-all: chat
+all: objdir chat
 
 ifeq ($(DEBUG), 1)
     CFLAGS += -O0 -g -DDEBUG
@@ -10,20 +10,24 @@ else
     CFLAGS += -O3
 endif
 
+.PHONY: objdir
 
-chat: main.o server.o client.o
-	$(CC) $(CFLAGS) -o chat main.o server.o client.o $(LFLAGS)
+objdir:
+	mkdir -p obj
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c
+chat: obj/main.o obj/server.o obj/client.o
+	$(CC) $(CFLAGS) -o chat obj/main.o obj/server.o obj/client.o $(LFLAGS)
 
-server.o: server.c
-	$(CC) $(CFLAGS) -c server.c
+obj/main.o: objdir src/main.c
+	$(CC) $(CFLAGS) -c src/main.c -o obj/main.o
 
-client.o: client.c
-	$(CC) $(CFLAGS) -c client.c
+obj/server.o: objdir src/server.c
+	$(CC) $(CFLAGS) -c src/server.c -o obj/server.o
+
+obj/client.o: objdir src/client.c
+	$(CC) $(CFLAGS) -c src/client.c -o obj/client.o
 
 .PHONY: clean
 
 clean:
-	rm -f ngsobel *.o *.a *.gch
+	rm -f chat obj/*.o *.a *.gch
