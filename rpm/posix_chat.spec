@@ -10,25 +10,21 @@ BuildRequires:  make
 BuildRequires:	gcc
 
 %description
-
+%global debug_package %{nil}
 
 %prep
-%autosetup
-
+%setup
 
 %build
 make %{?_smp_mflags}
 
-
 %install
 %make_install
-
 
 %files
 %license LICENSE
 %doc README.md
 %{_bindir}/%{name}
-
 
 %changelog
 * Sun May 19 2019 user

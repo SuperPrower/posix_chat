@@ -4,6 +4,8 @@ LFLAGS	=
 
 BINARY = posix_chat
 
+VERSION = 0.1
+
 all: objdir $(BINARY)
 
 ifeq ($(DEBUG), 1)
@@ -28,6 +30,11 @@ obj/server.o: objdir src/server.c
 
 obj/client.o: objdir src/client.c
 	$(CC) $(CFLAGS) -c src/client.c -o obj/client.o
+
+tarball:
+	mkdir -p $(BINARY)-$(VERSION)
+	cp -R src/ Makefile LICENSE README.md $(BINARY)-$(VERSION)/
+	tar -czf $(BINARY)-$(VERSION).tar.gz $(BINARY)-$(VERSION)
 
 install: all
 	mkdir -p $(DESTDIR)/usr/bin
