@@ -1,15 +1,13 @@
 Name:           posix_chat
 Version:        0.1
 Release:        1%{?dist}
-Summary:        
+Summary:        Simple chat application based on POSIX sockets
 
-License:        
-URL:            
+License:        GPLv3+
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  make
 BuildRequires:	gcc
-Requires:       
 
 %description
 
@@ -23,7 +21,6 @@ make %{?_smp_mflags}
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 %make_install
 
 
@@ -31,7 +28,6 @@ rm -rf $RPM_BUILD_ROOT
 %license LICENSE
 %doc README.md
 %{_bindir}/%{name}
-
 
 
 %changelog
