@@ -15,9 +15,18 @@
 
 #define BACKLOG_SIZE	5
 #define OPEN_MAX	128
+#define MSG_LEN		256
+#define BUF_LEN		512
+
+int broadcast_message(char* message, size_t message_len, struct pollfd *clients, size_t clients_len);
 
 int run_server(uint16_t port)
 {
+
+	char buf[BUF_LEN];
+
+	char msg_buf[MSG_LEN];
+
 	int sockfd;
 
 	if ((sockfd = socket(AF_INET6, SOCK_STREAM, 0)) < 0) {
@@ -64,8 +73,6 @@ int run_server(uint16_t port)
 	int lci = 0;
 	int res;
 
-	char buf[256];
-
 	while (!g_close) {
 		res = poll(clients, lci + 1, 1000);
 		if (res < 0) {
@@ -108,7 +115,7 @@ int run_server(uint16_t port)
 			res--;
 			clients[c].revents = 0;
 
-			int bread = read(clients[c].fd, buf, 255);
+			int bread = read(clients[c].fd, msg_buf, MSG_LEN);
 			if (bread < 0) {
 				if (errno == ECONNRESET)
 					printf("Client at socket %d has reset the connection\n",
@@ -120,13 +127,15 @@ int run_server(uint16_t port)
 					);
 
 			} else if (bread == 0) {
-				printf("Client at socket %d has disconnected\n", clients[c].fd);
+				snprintf(buf, BUF_LEN, "Client at socket %d has disconnected\n", clients[c].fd);
+				broadcast_message(buf, strlen(buf), clients, lci);
 
 			} else {
-				printf("Got message %s from socket %d\n", buf, clients[c].fd);
-				// broadcast message
-				// TODO
-
+				printf("Client %d: %s\n",
+					clients[c].fd, msg_buf
+				);
+				snprintf(buf, BUF_LEN, "client %d: %s\n", clients[c].fd, msg_buf);
+				broadcast_message(buf, strlen(buf), clients, lci);
 				continue;
 			}
 
@@ -148,6 +157,19 @@ int run_server(uint16_t port)
 cleanup:
 	if (sockfd != -1)
 		close(sockfd);
+
+	return 0;
+}
+
+int broadcast_message(char* message, size_t message_len, struct pollfd *clients, size_t clients_len)
+{
+	for (size_t i = 1; i <= clients_len; i++) {
+		if (write(clients[i].fd, message, message_len) < 0) {
+			fprintf(stderr, "write() failed for socket %d, errno %s\n",
+				clients[i].fd, strerror(errno)
+			);
+		}
+	}
 
 	return 0;
 }

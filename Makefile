@@ -1,6 +1,6 @@
 CC	= gcc
 CFLAGS	=
-LFLAGS	=
+LFLAGS	= -lncurses
 
 BINARY = posix_chat
 
